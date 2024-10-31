@@ -3,6 +3,7 @@ import { createStyles, useMantineTheme } from '@mantine/styles';
 import { motion } from 'framer-motion';
 import { useExternalUrl } from '~/hooks/useExternalUrl';
 import { AppType } from '~/types/app';
+import axios from 'axios';
 
 import { useEditModeStore } from '../../Views/useEditModeStore';
 import { HomarrCardWrapper } from '../HomarrCardWrapper';
@@ -27,6 +28,56 @@ export const AppTile = ({ className, app }: AppTileProps) => {
 
   const isRow = app.appearance.positionAppName.includes('row');
   const href = useExternalUrl(app);
+
+  // API Base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+  const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
+
+  // Function to handle starting a service
+  const startService = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/start/${app.name}`, null, {
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`
+        }
+      });
+      alert(response.data.status);
+    } catch (error) {
+      console.error("Error starting service:", error);
+      alert("Failed to start service");
+    }
+  };
+
+  // Function to handle stopping a service
+  const stopService = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/stop/${app.name}`, null, {
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`
+        }
+      });
+      alert(response.data.status);
+    } catch (error) {
+      console.error("Error stopping service:", error);
+      alert("Failed to stop service");
+    }
+  };
+
+  // Function to handle restarting a service
+  const restartService = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/restart/${app.name}`, null, {
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`
+        }
+      });
+      alert(response.data.status);
+    } catch (error) {
+      console.error("Error restarting service:", error);
+      alert("Failed to restart service");
+    }
+  };
+
 
   function Inner() {
     return (
@@ -98,6 +149,18 @@ export const AppTile = ({ className, app }: AppTileProps) => {
         </UnstyledButton>
       )}
       <AppPing app={app} />
+      {/* Start/Stop/Restart Buttons with UnstyledButton */}
+      <Box mt="xs" sx={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+        <UnstyledButton onClick={startService} className={classes.button}>
+          <Text size="xs">Start</Text>
+        </UnstyledButton>
+        <UnstyledButton onClick={stopService} className={classes.button}>
+          <Text size="xs">Stop</Text>
+        </UnstyledButton>
+        <UnstyledButton onClick={restartService} className={classes.button}>
+          <Text size="xs">Restart</Text>
+        </UnstyledButton>
+      </Box>
     </HomarrCardWrapper>
   );
 };
